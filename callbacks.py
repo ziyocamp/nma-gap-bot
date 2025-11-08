@@ -34,3 +34,6 @@ def start(update: Update, context: CallbackContext) -> None:
         )
     )
     
+def send_orders(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text('Sizda hali birorta ham buyurtma yo`q')
+
