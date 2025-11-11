@@ -9,7 +9,7 @@ from telegram import (
 )
 from telegram.ext import CallbackContext, ConversationHandler
 
-from db import is_user
+from db import is_user, add_user
 
 
 def send_menu(message: Message) -> None:
@@ -83,11 +83,17 @@ def ask_name(update: Update, context: CallbackContext) -> None:
     return 0
 
 def set_name(update: Update, context: CallbackContext) -> None:
+    name = update.message.text
+    context.user_data['name'] = name
+
     update.message.reply_text(text='Yoshingiz?')
 
     return 1
 
 def set_age(update: Update, context: CallbackContext) -> None:
+    age = update.message.text 
+    context.user_data['age'] = age
+
     update.message.reply_text(
         text='Location?',
         reply_markup=ReplyKeyboardMarkup(
@@ -105,6 +111,12 @@ def set_age(update: Update, context: CallbackContext) -> None:
     return 2
 
 def set_location(update: Update, context: CallbackContext) -> None:
+    location = update.message.location
+    context.user_data['location'] = {
+        'lat': location.latitude,
+        'lon': location.longitude
+    }
+
     update.message.reply_text(
         text='Contact?',
         reply_markup=ReplyKeyboardMarkup(
@@ -122,6 +134,20 @@ def set_location(update: Update, context: CallbackContext) -> None:
     return 3
 
 def set_contact(update: Update, context: CallbackContext) -> None:
+    contact = update.message.contact
+    context.user_data['contact'] = {
+        'phone_number': contact.phone_number
+    }
+
+    user_data = context.user_data
+
+    update.message.reply_text(
+        text=f'Ma\'lumotlaringiz\n\n'\
+        f'Name: {user_data["name"]}\n'
+        f'Age: {user_data["age"]}\n'
+        f'Tel: {user_data["contact"]["phone_number"]}\n'
+    )
+
     update.message.reply_text(
         text='Tasdiqlash?',
         reply_markup=ReplyKeyboardMarkup(
@@ -137,6 +163,10 @@ def set_contact(update: Update, context: CallbackContext) -> None:
     return 4
 
 def confirm(update: Update, context: CallbackContext) -> None:
+    user_data = context.user_data
+    
+    add_user(update.message.from_user.id, user_data)
+
     update.message.reply_text(
         text='Tasdiqlandi',
         reply_markup=ReplyKeyboardRemove()

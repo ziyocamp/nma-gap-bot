@@ -30,3 +30,13 @@ def is_user(tg_id: int) -> bool:
         users = json.load(f)['users']
 
     return str(tg_id) in users
+
+def add_user(tg_id, user_data):
+    with open(FIlE_NAME) as f:
+        users = json.load(f)
+
+    users['users'][str(tg_id)] = user_data
+
+    with open(FIlE_NAME, 'w') as f:
+        json.dump(users, f, indent=4)
+        
