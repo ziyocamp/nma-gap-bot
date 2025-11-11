@@ -47,6 +47,15 @@ def send_menu(message: Message) -> None:
 def start(update: Update, context: CallbackContext) -> None:
     user = update.message.from_user
 
+    bot = context.bot
+    result = bot.get_chat_member(
+        chat_id='@turklargrop',
+        user_id=user.id
+    )
+    if result.status == 'left':
+        update.message.reply_text('guruhga azo boling', reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('azo bolish', url='https://t.me/turklargrop')]]))
+        return
+
     if is_user(user.id):
         send_menu(update.message)
     else:
