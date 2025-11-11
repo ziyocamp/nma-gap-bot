@@ -2,6 +2,7 @@ from telegram.ext import (
     Updater, CommandHandler, 
     MessageHandler, Filters,
     CallbackQueryHandler,
+    ConversationHandler,
 )
 
 from config import Config
@@ -9,6 +10,9 @@ from callbacks import (
     start, send_orders, 
     send_about, change_language, 
     send_settings, set_language,
+    continue_chat, 
+    start_registration,
+    ask_name, set_name, set_age, set_location, set_contact, confirm,
 )
 
 
@@ -20,6 +24,61 @@ def main() -> None:
         handler=CommandHandler(
             command='start',
             callback=start
+        )
+    )
+
+    dispatcher.add_handler(
+        handler=MessageHandler(
+            filters=Filters.text('Davom etish'),
+            callback=continue_chat
+        )
+    )
+
+    dispatcher.add_handler(
+        handler=ConversationHandler(
+            entry_points=[
+                MessageHandler(
+                    filters=Filters.text('Ro\'yxatdan o\'tish'),
+                    callback=start_registration
+                ),
+            ],
+            states={
+                0: [
+                    MessageHandler(
+                        filters=Filters.text,
+                        callback=set_name
+                    ),
+                ],
+                1: [
+                    MessageHandler(
+                        filters=Filters.text,
+                        callback=set_age
+                    ),
+                ],
+                2: [
+                    MessageHandler(
+                        filters=Filters.location,
+                        callback=set_location
+                    ),
+                ],
+                3: [
+                    MessageHandler(
+                        filters=Filters.contact,
+                        callback=set_contact
+                    ),
+                ],
+                4: [
+                    MessageHandler(
+                        filters=Filters.text('Ha'),
+                        callback=confirm
+                    ),
+                    MessageHandler(
+                        filters=Filters.text('Yo\'q'),
+                        callback=ask_name
+                    ),
+                ],
+            },
+            fallbacks=[]
         )
     )
 
@@ -64,6 +123,7 @@ def main() -> None:
         )
     )
 
+    # ConversationHandler
     updater.start_polling()
     updater.idle()
 

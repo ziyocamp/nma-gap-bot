@@ -1,17 +1,20 @@
 from telegram import (
-    Update, 
+    Update, Message,
     ReplyKeyboardMarkup, 
     KeyboardButton, 
     WebAppInfo, 
     InlineKeyboardMarkup, 
     InlineKeyboardButton,
+    ReplyKeyboardRemove,
 )
-from telegram.ext import CallbackContext
+from telegram.ext import CallbackContext, ConversationHandler
+
+from db import is_user
 
 
-def start(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text(
-        text=f'Assalomu alaykum {update.message.from_user.first_name}!',
+def send_menu(message: Message) -> None:
+    message.reply_text(
+        text=f'Birorta bo\'limni tanlang!',
         reply_markup=ReplyKeyboardMarkup(
             keyboard=[
                 [
@@ -40,7 +43,107 @@ def start(update: Update, context: CallbackContext) -> None:
             resize_keyboard=True,
         )
     )
-    
+
+def start(update: Update, context: CallbackContext) -> None:
+    user = update.message.from_user
+
+    if is_user(user.id):
+        send_menu(update.message)
+    else:
+        update.message.reply_text(
+            text=f'Assalomu alaykum, {user.full_name}!',
+            reply_markup=ReplyKeyboardMarkup(
+                keyboard=[
+                    [
+                        KeyboardButton(text='Ro\'yxatdan o\'tish'),
+                        KeyboardButton(text='Davom etish'),
+                    ]
+                ]
+            )
+        )
+
+def continue_chat(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text('Ogohlantirish: biror ish qilmoqchi bo\'lsangiz ro\'yxatdan o\'tish talab qilishi mumkin')
+    send_menu(update.message)
+
+def start_registration(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text(
+        text='Ro\'yxatadan o\'tish uchun malumotlaringizni kitiring?',
+        reply_markup=ReplyKeyboardRemove()
+    )
+
+    return ask_name(update, context)
+
+def ask_name(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text(
+        text='Ismingiz?',
+        reply_markup=ReplyKeyboardRemove()
+    )
+
+    return 0
+
+def set_name(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text(text='Yoshingiz?')
+
+    return 1
+
+def set_age(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text(
+        text='Location?',
+        reply_markup=ReplyKeyboardMarkup(
+            keyboard=[
+                [
+                    KeyboardButton(
+                        text='Yuborish',
+                        request_location=True
+                    )
+                ]
+            ]
+        )
+    )
+
+    return 2
+
+def set_location(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text(
+        text='Contact?',
+        reply_markup=ReplyKeyboardMarkup(
+            keyboard=[
+                [
+                    KeyboardButton(
+                        text='Yuborish',
+                        request_contact=True
+                    )
+                ]
+            ]
+        )
+    )
+
+    return 3
+
+def set_contact(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text(
+        text='Tasdiqlash?',
+        reply_markup=ReplyKeyboardMarkup(
+            keyboard=[
+                [
+                    KeyboardButton('Ha'),
+                    KeyboardButton('Yo\'q')
+                ]
+            ]
+        )
+    )
+
+    return 4
+
+def confirm(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text(
+        text='Tasdiqlandi',
+        reply_markup=ReplyKeyboardRemove()
+    )
+
+    return ConversationHandler.END
+
 def send_orders(update: Update, context: CallbackContext) -> None:
     update.message.reply_text('Sizda hali birorta ham buyurtma yo`q')
     
