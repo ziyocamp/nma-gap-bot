@@ -84,9 +84,20 @@ def change_language(update: Update, context: CallbackContext) -> None:
                     ),
                     InlineKeyboardButton(
                         text='English',
-                        callback_data='movie:34'
+                        callback_data='change_lang:en'
                     )
                 ]
             ]
         )
     )
+
+def set_language(update: Update, context: CallbackContext) -> None:
+    data = update.callback_query.data
+    
+    selected_lan = data.split(':')[1]
+    
+    if selected_lan == 'uz':
+        update.callback_query.message.reply_text('O\'zbek tili tanlandi')
+    elif selected_lan == 'en':
+        update.callback_query.message.reply_text('Ingliz tili tanlandi')
+

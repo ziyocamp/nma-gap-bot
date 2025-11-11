@@ -1,7 +1,15 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import (
+    Updater, CommandHandler, 
+    MessageHandler, Filters,
+    CallbackQueryHandler,
+)
 
 from config import Config
-from callbacks import start, send_orders, send_about, change_language, send_settings
+from callbacks import (
+    start, send_orders, 
+    send_about, change_language, 
+    send_settings, set_language,
+)
 
 
 def main() -> None:
@@ -45,8 +53,14 @@ def main() -> None:
 
     dispatcher.add_handler(
         handler=MessageHandler(
-            filters=Filters.text('Tilni o\'zgartirish'),
+            filters=Filters.text('🌐 Tilni o\'zgartirish'),
             callback=change_language
+        )
+    )
+
+    dispatcher.add_handler(
+        handler=CallbackQueryHandler(
+            callback=set_language
         )
     )
 
